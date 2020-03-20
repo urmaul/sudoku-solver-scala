@@ -7,44 +7,30 @@ class GridTest extends TestCase {
   "Grid.set" should "disallow setting same digit in same row, column or box" in {
     forAll { (value: Digit, row: Digit, col: Digit, x: Digit) =>
       val grid = Grid.empty().set(GridKey.rowCol(row, col), value)
-      assert(
-        col == x || grid.flatMap(_.set(GridKey.rowCol(row, x), value)).isEmpty)
-      assert(
-        row == x || grid.flatMap(_.set(GridKey.rowCol(x, col), value)).isEmpty)
+      assert(grid.flatMap(_.set(GridKey.rowCol(row, x), value)).isEmpty)
+      assert(grid.flatMap(_.set(GridKey.rowCol(x, col), value)).isEmpty)
     }
   }
 
   it should "disallow setting same digit in same box" in {
-    forAll { (value: Digit, box: Digit, num: Digit, x: Digit) =>
-      val grid = Grid.empty().set(GridKey.boxNum(box, num), value)
-      assert(
-        num == x || grid.flatMap(_.set(GridKey.boxNum(box, x), value)).isEmpty)
+    forAll { (value: Digit, box: Digit, nums: TwoDifferentDigits) =>
+      val grid = Grid.empty().set(GridKey.boxNum(box, nums.a), value)
+      assert(grid.flatMap(_.set(GridKey.boxNum(box, nums.b), value)).isEmpty)
     }
   }
 
   it should "allow setting another digit in same row or column" in {
-    forAll {
-      (value: Digit, newValue: Digit, row: Digit, col: Digit, x: Digit) =>
-        val grid = Grid.empty().set(GridKey.rowCol(row, col), value)
-        assert(
-          col == x || newValue == value || grid
-            .flatMap(_.set(GridKey.rowCol(row, x), newValue))
-            .isDefined)
-        assert(
-          row == x || newValue == value || grid
-            .flatMap(_.set(GridKey.rowCol(x, col), newValue))
-            .isDefined)
+    forAll { (values: TwoDifferentDigits, rows: TwoDifferentDigits, cols: TwoDifferentDigits) =>
+      val grid = Grid.empty().set(GridKey.rowCol(rows.a, cols.a), values.a)
+      assert(grid.flatMap(_.set(GridKey.rowCol(rows.a, cols.b), values.b)).isDefined)
+      assert(grid.flatMap(_.set(GridKey.rowCol(rows.b, cols.a), values.b)).isDefined)
     }
   }
 
   it should "allow setting another digit in same box" in {
-    forAll {
-      (value: Digit, newValue: Digit, box: Digit, num: Digit, x: Digit) =>
-        val grid = Grid.empty().set(GridKey.boxNum(box, num), value)
-        assert(
-          num == x || newValue == value || grid
-            .flatMap(_.set(GridKey.boxNum(box, x), newValue))
-            .isDefined)
+    forAll { (values: TwoDifferentDigits, box: Digit, nums: TwoDifferentDigits) =>
+      val grid = Grid.empty().set(GridKey.boxNum(box, nums.a), values.a)
+      assert(grid.flatMap(_.set(GridKey.boxNum(box, nums.b), values.b)).isDefined)
     }
   }
 

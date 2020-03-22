@@ -9,10 +9,6 @@ package object model {
   type Digit = Int Refined Interval.Closed[W.`1`.T, W.`9`.T]
   val allDigits: List[Digit] = List[Digit](1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-  case class CellValue(value: Digit) {
-    override def toString: String = value.toString
-  }
-
   sealed trait Cell {
     def isValid: Boolean = this match {
       case _: FullCell  => true
@@ -35,15 +31,11 @@ package object model {
       case _: EmptyCell => "."
     }
   }
-  case class FullCell(value: CellValue) extends Cell
+  case class FullCell(value: Digit) extends Cell
   case class EmptyCell(allowed: Set[Digit]) extends Cell {
     def disallow(value: Digit): EmptyCell = EmptyCell(allowed - value)
   }
 
-  object FullCell {
-    def apply(value: CellValue): FullCell = new FullCell(value)
-    def apply(digit: Digit): FullCell = new FullCell(CellValue(digit))
-  }
   object EmptyCell {
     private lazy val fullAllowed: EmptyCell = new EmptyCell(
       allDigits.toSet[Digit])

@@ -85,7 +85,7 @@ object Grid {
       // allowedSets = Map(value -> [set of cells where this value is allowed])
       val allowedSets = allDigits.foldLeft(emptyResult)((map, num) =>
         grid.body(key(num)) match {
-          case FullCell(x) => map.removed(x.value)
+          case FullCell(x) => map.removed(x)
           case EmptyCell(a) =>
             a.foldLeft(map)((xmap, x) => xmap.updatedWith(x)(_.map(_ + num)))
       })

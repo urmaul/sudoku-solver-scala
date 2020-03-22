@@ -1,12 +1,11 @@
 package app
 
-import eu.timepit.refined.W
 import eu.timepit.refined.auto._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric.Interval
 
 package object model {
-  type Digit = Int Refined Interval.Closed[W.`1`.T, W.`9`.T]
+  type Digit = Int Refined Interval.Closed[1, 9]
   val allDigits: List[Digit] = List[Digit](1, 2, 3, 4, 5, 6, 7, 8, 9)
 
   sealed trait Cell {

@@ -48,7 +48,6 @@ package object model {
   object GridKey {
     def isValid(x: GridKey): Boolean = x >= 0 && x < 9 * 9
 
-    def every: Seq[GridKey] = (0 until 9 * 9)
     def rowCol(row: Digit, col: Digit): GridKey = (row - 1) * 9 + (col - 1)
     def boxNum(box: Digit, num: Digit): GridKey =
       (box - 1) / 3 * 9 * 3 + // Box rows offset

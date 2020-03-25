@@ -20,6 +20,6 @@ object App {
     println("--------- Before:")
     println(grid)
     println("--------- After:")
-    println(Grid.solve(grid).get)
+    println(Solvers.solve(grid).get)
   }
 }

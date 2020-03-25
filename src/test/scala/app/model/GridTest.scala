@@ -1,126 +1,55 @@
 package app.model
 
 import app.TestCase
+import app.model.GridKey._
 import eu.timepit.refined.auto._
 
 class GridTest extends TestCase {
+  private def createGrid(cells: (GridKey, Digit)*): Grid =
+    Grid.empty().set(cells).get
+
   "Grid.set" should "disallow setting same digit in same row, column or box" in {
     forAll { (value: Digit, row: Digit, col: Digit, x: Digit) =>
-      val grid = Grid.empty().set(GridKey.rowCol(row, col), value)
-      assert(grid.flatMap(_.set(GridKey.rowCol(row, x), value)).isEmpty)
-      assert(grid.flatMap(_.set(GridKey.rowCol(x, col), value)).isEmpty)
+      val grid = createGrid(rowCol(row, col) -> value)
+      assert(grid.set(rowCol(row, x), value).isEmpty)
+      assert(grid.set(rowCol(x, col), value).isEmpty)
     }
   }
 
   it should "disallow setting same digit in same box" in {
     forAll { (value: Digit, box: Digit, nums: TwoDifferentDigits) =>
-      val grid = Grid.empty().set(GridKey.boxNum(box, nums.a), value)
-      assert(grid.flatMap(_.set(GridKey.boxNum(box, nums.b), value)).isEmpty)
+      val grid = createGrid(boxNum(box, nums.a) -> value)
+      assert(grid.set(boxNum(box, nums.b), value).isEmpty)
     }
   }
 
   it should "allow setting another digit in same row or column" in {
-    forAll { (values: TwoDifferentDigits, rows: TwoDifferentDigits, cols: TwoDifferentDigits) =>
-      val grid = Grid.empty().set(GridKey.rowCol(rows.a, cols.a), values.a)
-      assert(grid.flatMap(_.set(GridKey.rowCol(rows.a, cols.b), values.b)).isDefined)
-      assert(grid.flatMap(_.set(GridKey.rowCol(rows.b, cols.a), values.b)).isDefined)
+    forAll {
+      (values: TwoDifferentDigits,
+       rows: TwoDifferentDigits,
+       cols: TwoDifferentDigits) =>
+        val grid = createGrid(rowCol(rows.a, cols.a) -> values.a)
+        assert(grid.set(rowCol(rows.a, cols.b), values.b).isDefined)
+        assert(grid.set(rowCol(rows.b, cols.a), values.b).isDefined)
     }
   }
 
   it should "allow setting another digit in same box" in {
-    forAll { (values: TwoDifferentDigits, box: Digit, nums: TwoDifferentDigits) =>
-      val grid = Grid.empty().set(GridKey.boxNum(box, nums.a), values.a)
-      assert(grid.flatMap(_.set(GridKey.boxNum(box, nums.b), values.b)).isDefined)
+    forAll {
+      (values: TwoDifferentDigits, box: Digit, nums: TwoDifferentDigits) =>
+        val grid = createGrid(boxNum(box, nums.a) -> values.a)
+        assert(grid.set(boxNum(box, nums.b), values.b).isDefined)
     }
   }
 
-  "Grid.fillBox" should "work" in {
-    val grid = Grid
-      .empty()
-      .set(
-        GridKey.rowCol(1, 1) -> 2,
-        GridKey.rowCol(1, 4) -> 1,
-        GridKey.rowCol(2, 7) -> 1,
-        GridKey.rowCol(4, 1) -> 1,
-        GridKey.rowCol(7, 2) -> 1
-      )
-
-    assert(
-      grid.map(Grid.fillBox(1)) == grid.flatMap(_.set(GridKey.rowCol(3, 3), 1)))
-  }
-
-  "Grid.fillSimpleCases" should "work" in {
-    val grid = Grid
-      .empty()
-      .set(
-        GridKey.rowCol(1, 1) -> 2,
-        GridKey.rowCol(1, 4) -> 1,
-        GridKey.rowCol(2, 7) -> 1,
-        GridKey.rowCol(4, 1) -> 1,
-        GridKey.rowCol(7, 2) -> 1
-      )
-
-    assert(
-      grid.map(Grid.fillSimpleCases) == grid.flatMap(
-        _.set(GridKey.rowCol(3, 3), 1)))
-  }
-
-  "Grid.fillRow" should "work" in {
-    val grid = Grid.fromString("""
-        |...123456
-        |...
-        |...
-        |7..
-        |...
-        |...
-        |.7.
-        |...
-        |...
-        |""".trim.stripMargin).get
-
-    assert(Grid.fillRow(1)(grid) == grid.set(GridKey.rowCol(1, 3), 7).get)
-  }
-
-  "Grid.fillCols" should "work" in {
-    val grid = Grid.fromString("""
-        |...7
-        |......7
-        |...
-        |1
-        |2
-        |3
-        |4
-        |5
-        |6
-        |""".trim.stripMargin).get
-
-    assert(Grid.fillCol(1)(grid) == grid.set(GridKey.rowCol(3, 1), 7).get)
-  }
-
-  "Grid.fillSingleAlloweds" should "work" in {
-    val grid = Grid.fromString("""
-        |...1234..
-        |.8.
-        |..9
-        |6
-        |7
-        |""".trim.stripMargin).get
-
-    assert(
-      Grid.fillSingleAlloweds(grid) == grid.set(GridKey.rowCol(1, 1), 5).get)
-  }
-
   "Grid.fromString" should "work" in {
-    val expected = Grid
-      .empty()
-      .set(
-        GridKey.rowCol(1, 1) -> 2,
-        GridKey.rowCol(1, 4) -> 1,
-        GridKey.rowCol(2, 7) -> 3,
-        GridKey.rowCol(4, 1) -> 4,
-        GridKey.rowCol(7, 2) -> 5
-      )
-      .get
+    val expected = createGrid(
+      rowCol(1, 1) -> 2,
+      rowCol(1, 4) -> 1,
+      rowCol(2, 7) -> 3,
+      rowCol(4, 1) -> 4,
+      rowCol(7, 2) -> 5
+    )
     val grid = Grid.fromString("""
         |2..1
         |......3
@@ -135,16 +64,13 @@ class GridTest extends TestCase {
   }
 
   "Grid.fromString" should "convert back from toString" in {
-    val expected = Grid
-      .empty()
-      .set(
-        GridKey.rowCol(1, 1) -> 2,
-        GridKey.rowCol(1, 4) -> 1,
-        GridKey.rowCol(2, 7) -> 3,
-        GridKey.rowCol(4, 1) -> 4,
-        GridKey.rowCol(7, 2) -> 5
-      )
-      .get
+    val expected = createGrid(
+      rowCol(1, 1) -> 2,
+      rowCol(1, 4) -> 1,
+      rowCol(2, 7) -> 3,
+      rowCol(4, 1) -> 4,
+      rowCol(7, 2) -> 5
+    )
     val grid = Grid.fromString(expected.toString).get
 
     assert(grid == expected)

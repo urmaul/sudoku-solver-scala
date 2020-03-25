@@ -5,8 +5,8 @@ import eu.timepit.refined.auto._
 
 class GridKeyTest extends TestCase {
   "rowCol" should "return a valid value" in {
-      forAll { (row: Digit, col: Digit) =>
-          assert(GridKey.isValid(GridKey.rowCol(row, col)))
+    forAll { (row: Digit, col: Digit) =>
+      assert(GridKey.isValid(GridKey.rowCol(row, col)))
     }
   }
 

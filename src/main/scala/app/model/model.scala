@@ -7,6 +7,7 @@ import eu.timepit.refined.numeric.Interval
 package object model {
   type Digit = Int Refined Interval.Closed[1, 9]
   val allDigits: List[Digit] = List[Digit](1, 2, 3, 4, 5, 6, 7, 8, 9)
+  var gridSize: Int = 9 * 9
 
   sealed trait Cell {
     def isValid: Boolean = this match {
@@ -46,7 +47,7 @@ package object model {
   /** Integer number between 0 and 80 to define unique cell position on sudoku grid */
   type GridKey = Int
   object GridKey {
-    def isValid(x: GridKey): Boolean = x >= 0 && x < 9 * 9
+    def isValid(x: GridKey): Boolean = x >= 0 && x < gridSize
 
     def rowCol(row: Digit, col: Digit): GridKey = (row - 1) * 9 + (col - 1)
     def boxNum(box: Digit, num: Digit): GridKey =

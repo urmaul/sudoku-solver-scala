@@ -2,10 +2,8 @@ package app.model
 
 import eu.timepit.refined.auto._
 
-import scala.annotation.tailrec
-
-class Grid(val body: Vector[Cell]) {
-  assert(body.size == 9 * 9)
+class Grid private (val body: Vector[Cell]) {
+  assert(body.size == gridSize)
 
   override def toString: String =
     body.grouped(9).map(_.mkString("")).mkString("\n")
@@ -37,8 +35,8 @@ class Grid(val body: Vector[Cell]) {
   def set(cells: (GridKey, Digit)*): Option[Grid] = set(cells)
 }
 object Grid {
-  def apply(body: Vector[Cell]): Grid = new Grid(body)
-  def empty(): Grid = Grid(Vector.fill(9 * 9)(EmptyCell()))
+  private def apply(body: Vector[Cell]): Grid = new Grid(body)
+  def empty(): Grid = Grid(Vector.fill(gridSize)(EmptyCell()))
 
   /**
     * Creates grid state from string.

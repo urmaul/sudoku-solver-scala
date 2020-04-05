@@ -4,15 +4,22 @@ import app.TestCase
 import eu.timepit.refined.auto._
 
 class GridKeyTest extends TestCase {
+  "keys" should "have values according to indexes" in {
+    assert(GridKey.keys.size == gridSize)
+    GridKey.keys.zipWithIndex.foreach({
+      case (key, index) => assert(key.value == index)
+    })
+  }
+
   "rowCol" should "return a valid value" in {
     forAll { (row: Digit, col: Digit) =>
-      assert(GridKey.isValid(GridKey.rowCol(row, col)))
+      GridKey.rowCol(row, col)
     }
   }
 
   "boxNum" should "return a valid value" in {
     forAll { (box: Digit, num: Digit) =>
-      assert(GridKey.isValid(GridKey.boxNum(box, num)))
+      GridKey.boxNum(box, num)
     }
   }
 
@@ -42,7 +49,7 @@ class GridKeyTest extends TestCase {
 
     forAll { (box: Digit, num: Digit) =>
       val key = GridKey.boxNum(box, num)
-      assert((boxes(key), numbers(key)) == (box, num))
+      assert((boxes(key.value), numbers(key.value)) == (box, num))
     }
   }
 

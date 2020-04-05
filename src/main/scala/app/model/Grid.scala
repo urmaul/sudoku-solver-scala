@@ -15,8 +15,8 @@ class Grid private (val body: Vector[Cell]) {
 
   def tryDisallow(places: IterableOnce[GridKey], value: Digit): Grid = {
     val newBody = places.iterator.foldLeft(body)((b, i) =>
-      body(i) match {
-        case c: EmptyCell => b.updated(i, c.disallow(value))
+      body(i.value) match {
+        case c: EmptyCell => b.updated(i.value, c.disallow(value))
         case _            => b
     })
     Grid(newBody)
@@ -25,8 +25,8 @@ class Grid private (val body: Vector[Cell]) {
     tryDisallow(List(place), value)
 
   def set(place: GridKey, value: Digit): Option[Grid] =
-    Option.when(body(place).isAllowed(value)) {
-      Grid(body.updated(place, FullCell(value)))
+    Option.when(body(place.value).isAllowed(value)) {
+      Grid(body.updated(place.value, FullCell(value)))
         .tryDisallow(GridKey.affectedBy(place), value)
     }
   def set(cells: IterableOnce[(GridKey, Digit)]): Option[Grid] =

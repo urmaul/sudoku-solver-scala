@@ -17,7 +17,7 @@ object Solvers {
         Map.from(allDigits.map((_ -> Set[Digit]())))
       // allowedSets = Map(value -> [set of cells where this value is allowed])
       val allowedSets = allDigits.foldLeft(emptyResult)((map, num) =>
-        grid.body(key(num)) match {
+        grid.body(key(num).value) match {
           case FullCell(x) => map.removed(x)
           case EmptyCell(a) =>
             a.foldLeft(map)((xmap, x) => xmap.updatedWith(x)(_.map(_ + num)))
@@ -41,7 +41,7 @@ object Solvers {
     allDigits.map(f).reduce(_ compose _)
 
   def fillSingleAlloweds(grid: Grid): Grid = {
-    val cells: Seq[(GridKey, Digit)] = grid.body.zipWithIndex
+    val cells: Seq[(GridKey, Digit)] = grid.body.zip(GridKey.keys)
       .map({
         case (EmptyCell(a), i) if a.size == 1 => Some(i -> a.head)
         case _                                => None
@@ -68,7 +68,7 @@ object Solvers {
   /** Solve sudoku if possible */
   def solve(grid: Grid): Option[Grid] = {
     val newGrid = fillSimpleCases(grid)
-    val firstEmpty: Option[(GridKey, Option[Digit])] = newGrid.body.zipWithIndex
+    val firstEmpty: Option[(GridKey, Option[Digit])] = newGrid.body.zip(GridKey.keys)
       .collectFirst({
         case (EmptyCell(a), key) => (key, a.headOption)
       })

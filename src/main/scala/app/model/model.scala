@@ -43,33 +43,4 @@ package object model {
     def apply(allowed: Set[Digit]): EmptyCell = new EmptyCell(allowed)
     def apply(): EmptyCell = fullAllowed
   }
-
-  /** Integer number between 0 and 80 to define unique cell position on sudoku grid */
-  type GridKey = Int
-  object GridKey {
-    def isValid(x: GridKey): Boolean = x >= 0 && x < gridSize
-
-    def rowCol(row: Digit, col: Digit): GridKey = (row - 1) * 9 + (col - 1)
-    def boxNum(box: Digit, num: Digit): GridKey =
-      (box - 1) / 3 * 9 * 3 + // Box rows offset
-        (box - 1) % 3 * 3 + // Box offset
-        (num - 1) / 3 * 9 + // Number rows offset
-        (num - 1) % 3 // Number offset
-    def wholeRow(row: Digit): Seq[GridKey] = allDigits.map(rowCol(row, _))
-    def everyRow(): Seq[Seq[GridKey]] = allDigits.map(wholeRow)
-    def wholeCol(col: Digit): Seq[GridKey] = allDigits.map(rowCol(_, col))
-    def wholeBox(box: Digit): Seq[GridKey] = allDigits.map(boxNum(box, _))
-    def rowOf(x: GridKey): Digit = { require(isValid(x)); allDigits(x / 9) }
-    def colOf(x: GridKey): Digit = { require(isValid(x)); allDigits(x % 9) }
-    def boxOf(x: GridKey): Digit = {
-      require(isValid(x)); allDigits(x / 9 / 3 * 3 + x / 3 % 3)
-    }
-    def wholeRowOf: GridKey => Seq[GridKey] = wholeRow _ compose rowOf
-    def wholeColOf: GridKey => Seq[GridKey] = wholeCol _ compose colOf
-    def wholeBoxOf: GridKey => Seq[GridKey] = wholeBox _ compose boxOf
-    def affectedBy(x: GridKey): Set[GridKey] = {
-      require(isValid(x))
-      (wholeRowOf(x) ++ wholeColOf(x) ++ wholeBoxOf(x)).toSet - x
-    }
-  }
 }

@@ -11,6 +11,7 @@ abstract class TestCase extends AnyFlatSpec with Matchers with ScalaCheckDrivenP
 
   val digitGen: Gen[Digit] = Gen.oneOf(allDigits)
   implicit def digitAGen: Arbitrary[Digit] = Arbitrary(digitGen)
+
   def digitExcept(exceptions: Digit*): Gen[Digit] = Gen.oneOf(allDigits.toSet -- exceptions)
   implicit def twoDifferentDigitsAGen: Arbitrary[TwoDifferentDigits] = Arbitrary(for {
     a <- digitGen

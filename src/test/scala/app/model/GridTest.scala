@@ -23,14 +23,21 @@ class GridTest extends TestCase {
     }
   }
 
-  it should "allow setting another digit in same row or column" in {
+  it should "allow setting another digit in same row" in {
     forAll {
-      (values: TwoDifferentDigits,
-       rows: TwoDifferentDigits,
-       cols: TwoDifferentDigits) =>
-        val grid = createGrid(rowCol(rows.a, cols.a) -> values.a)
-        assert(grid.set(rowCol(rows.a, cols.b), values.b).isDefined)
-        assert(grid.set(rowCol(rows.b, cols.a), values.b).isDefined)
+      (values: TwoDifferentDigits, row: Digit, cols: TwoDifferentDigits) => {
+        val grid = createGrid(rowCol(row, cols.a) -> values.a)
+        assert(grid.set(rowCol(row, cols.b), values.b).isDefined)
+      }
+    }
+  }
+
+  it should "allow setting another digit in same column" in {
+    forAll {
+      (values: TwoDifferentDigits, rows: TwoDifferentDigits, col: Digit) => {
+        val grid = createGrid(rowCol(rows.a, col) -> values.a)
+        assert(grid.set(rowCol(rows.b, col), values.b).isDefined)
+      }
     }
   }
 
